@@ -18,7 +18,6 @@ test.describe('Catalog - Filter By Category', () => {
     const invalidSlug = 'non-existing-category-xyz';
     await products.filterByCategorySlug(invalidSlug);
 
-    // Either no results OR not-found message
     await products.expectNoResults();
   });
 });

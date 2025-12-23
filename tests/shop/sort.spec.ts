@@ -9,7 +9,6 @@ test.describe('Catalog - Sort', () => {
     await expect(products.productCards.first()).toBeVisible({ timeout: 60_000 });
 
     const titles = await products.getVisibleProductTitles(8);
-    // Validate only if we have enough data
     if (titles.length >= 2) {
       products.assertSortedTitlesAZ(titles);
     }

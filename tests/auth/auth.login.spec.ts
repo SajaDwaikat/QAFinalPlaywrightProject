@@ -5,7 +5,7 @@ import { LoginPage } from '../../pages/LoginPage';
 dotenv.config();
 
 test.use({
-  storageState: { cookies: [], origins: [] }, // Force logged-out
+  storageState: { cookies: [], origins: [] }, 
 });
 
 test.describe('Auth - Login', () => {
@@ -27,7 +27,7 @@ test.describe('Auth - Login', () => {
     await login.goto();
     await login.login(email!, password!);
 
-    // Generic post-login signals (Toolshop demo + common nav patterns)
+   
     const postLoginSignals = [
       page.locator('[data-test="nav-account"], [data-test="nav-user"]').first(),
       page.getByRole('link', { name: /my account|account|profile/i }).first(),
@@ -42,7 +42,7 @@ test.describe('Auth - Login', () => {
       }
     }
 
-    // Fallback: URL no longer includes login
+ 
     const urlOk = !/login/i.test(page.url());
     expect(anyVisible || urlOk).toBeTruthy();
   });

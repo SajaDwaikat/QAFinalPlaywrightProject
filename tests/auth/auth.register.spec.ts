@@ -3,14 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-test.use({ storageState: { cookies: [], origins: [] } }); // Force logged-out
+test.use({ storageState: { cookies: [], origins: [] } }); 
 
 function uniqueEmail(prefix = 'qa'): string {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000)}@test.com`;
 }
 
 async function gotoRegister(page: any) {
-  // Try common register routes used in SPAs
+
   const routes = ['/auth/register', '/register', '/signup'];
   for (const r of routes) {
     await page.goto(r, { waitUntil: 'domcontentloaded' }).catch(() => null);
@@ -24,7 +24,7 @@ test.describe('Auth - Register', () => {
 
     await gotoRegister(page);
 
-    // Prefer labels (as your previous test used), with fallbacks
+
     const firstName = page.getByLabel(/first name/i).or(page.locator('input[name="first_name"], input[name="firstName"]'));
     const lastName = page.getByLabel(/last name/i).or(page.locator('input[name="last_name"], input[name="lastName"]'));
     const dob = page.getByLabel(/date of birth/i).or(page.locator('input[name="dob"], input[type="date"]'));
@@ -37,7 +37,7 @@ test.describe('Auth - Register', () => {
     await firstName.fill('QA');
     await lastName.fill('Student');
     if (await dob.isVisible().catch(() => false)) {
-      // Use a stable adult date; some forms validate age
+
       await dob.fill('1999-01-01');
     }
 
@@ -49,7 +49,7 @@ test.describe('Auth - Register', () => {
 
     await submit.click();
 
-    // Success can be: redirect to login, success toast, or account page
+ 
     await page.waitForLoadState('domcontentloaded').catch(() => {});
     const res = await registerApi;
     const apiOk = res ? res.ok() : false;
@@ -81,11 +81,10 @@ test.describe('Auth - Register', () => {
 
     await submit.click();
 
-    // Validation signals (common patterns)
     const errorNodes = page.locator('.invalid-feedback, .text-danger, [role="alert"], .alert-danger');
     await expect(errorNodes.first()).toBeVisible({ timeout: 60_000 });
 
-    // Best-effort: ensure at least one meaningful error text exists
+    
     const all = (await errorNodes.allTextContents().catch(() => [])).map((t: string) => t.trim()).filter(Boolean);
     expect(all.length).toBeGreaterThan(0);
   });

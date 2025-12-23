@@ -17,14 +17,14 @@ export default defineConfig({
   },
 
   projects: [
-    // 1) Setup project: ينتج storageState.json
+    
     {
       name: 'setup',
       testMatch: /.*\.setup\.ts/,
-      use: { browserName: 'chromium' }, // setup على chromium كفاية
+      use: { browserName: 'chromium' }, 
     },
 
-    // 2) Browsers that depend on setup
+   
     {
       name: 'Chromium',
       dependencies: ['setup'],

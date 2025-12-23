@@ -1,4 +1,3 @@
-// tests/setup/auth.setup.ts
 import { test as setup, expect } from '@playwright/test';
 import dotenv from 'dotenv';
 
@@ -21,7 +20,6 @@ setup('create auth storage state', async ({ page, context }) => {
 
   await page.getByRole('button', { name: /^login$/i }).click();
 
-  // دليل نجاح: يا account يا رجوع للهوم مع ظهور عنصر account
   await Promise.race([
     page.waitForURL(/\/account/i, { timeout: 60_000 }).catch(() => null),
     page.waitForURL(/\/$/i, { timeout: 60_000 }).catch(() => null),

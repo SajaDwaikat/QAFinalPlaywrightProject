@@ -11,11 +11,9 @@ test.describe('Catalog - Filter By Brand', () => {
     await expect(productCards.first()).toBeVisible({ timeout: 60_000 });
     const before = await productCards.count();
 
-    // Find any filter checkbox/radio on the page (brand list exists in left sidebar)
     const options = page.locator('input[type="checkbox"], input[type="radio"]');
     await expect(options.first(), 'No filter options found on page').toBeVisible({ timeout: 60_000 });
 
-    // click first enabled option
     const total = await options.count();
     let target = options.first();
     for (let i = 0; i < Math.min(total, 30); i++) {
@@ -28,7 +26,6 @@ test.describe('Catalog - Filter By Brand', () => {
 
     await target.click({ force: true });
 
-    // wait for either URL change (query param) OR product count change OR "no results"
     const noResults = page.locator(':has-text("No products"), :has-text("No results")').first();
 
     await expect

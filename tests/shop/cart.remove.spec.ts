@@ -9,23 +9,20 @@ test.describe('Cart - Remove', () => {
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // ✅ استخدمي نفس الإضافة اللي نجّحت Scenario 1 عندك
     await products.addFirstProductToCart();
 
-    // go to checkout (cart)
+  
     await cart.gotoCart(30_000);
 
-    // confirm it has item (using robust checks now)
     await cart.expectHasAnyItem(60_000);
 
     const before = await cart.getItemCount();
 
-    // if rows selector didn't match but remove exists, we still remove
+    
     await cart.removeFirstItem(60_000);
 
     const after = await cart.getItemCount();
 
-    // even if selectors for rows are weak, "after" might still be 0 safely
     expect(after).toBeLessThan(before);
   });
 });

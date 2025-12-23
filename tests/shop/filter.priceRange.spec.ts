@@ -11,7 +11,6 @@ test.describe('Catalog - Price Range', () => {
     await products.setPriceRange(min, max);
 
     const prices = await products.getVisibleProductPrices(6);
-    // If we got prices, validate them; otherwise accept empty-state flows
     if (prices.length > 0) {
       const minN = Number(min);
       const maxN = Number(max);

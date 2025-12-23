@@ -1,33 +1,23 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-/**
- * Unified Products/Catalog page model for https://practicesoftwaretesting.com
- *
- * Fixes included:
- * - Scopes product cards/links to the products column (.col-md-9) to avoid false negatives.
- * - Fixes Brand filtering by scoping to the "By brand:" fieldset (avoids clicking the hidden Search label).
- * - Keeps helper methods expected by your existing specs (cart, sort, search, category, price range, no-results).
- */
 export class ProductsPage {
   readonly page: Page;
 
-  // Columns
   readonly productsCol: Locator;
   readonly filtersCol: Locator;
 
-  // Sections
+  
   readonly brandFieldset: Locator;
 
-  // Catalog grid
+  
   readonly productCards: Locator;
   readonly productLinks: Locator;
 
-  // Search & sort
+
   readonly searchInput: Locator;
   readonly searchButton: Locator;
   readonly sortSelect: Locator;
 
-  // Filters
   readonly filtersAside: Locator;
   readonly priceMinInput: Locator;
   readonly priceMaxInput: Locator;
@@ -35,23 +25,20 @@ export class ProductsPage {
  
 
 
-  // Product details
+
   readonly addToCartBtn: Locator;
 
-  // Common "no results" signals
   readonly noResultsText: Locator;
   readonly emptyState: Locator;
 
   constructor(page: Page) {
     this.page = page;
 
-    // Columns (site layout uses Bootstrap col-md-3 (filters) + col-md-9 (products))
     this.filtersCol = page.locator('.col-md-3').first();
     this.productsCol = page.locator('.col-md-9, main').first();
     this.filtersAside = page.locator('aside, .col-md-3').first();
 
-    // ✅ "By brand:" fieldset (scope brand interactions here only)
-    // There may be nodes between <h4> and <fieldset>, so use following::fieldset[1].
+   
     this.brandFieldset = page
       .locator('h4', { hasText: /By\s+brand/i })
       .first()
@@ -61,12 +48,11 @@ export class ProductsPage {
       .first()
        .locator('xpath=following::fieldset[1]');
 
-    // ✅ Product cards inside products column
+  
     this.productCards = this.productsCol.locator(
       ['.card', '[data-test="product-card"]', 'app-product-card', '.product-card'].join(', ')
     );
 
-    // ✅ Product links/titles inside products column
     this.productLinks = this.productsCol.locator(
       [
         'a[href*="#/product/"]',
@@ -78,7 +64,7 @@ export class ProductsPage {
       ].join(', ')
     );
 
-    // Search (left column)
+
     this.searchInput = page
       .locator(['[data-test="search-query"]', '#search-query', 'input#search-query', 'input[placeholder="Search"]'].join(', '))
       .first();
@@ -87,12 +73,11 @@ export class ProductsPage {
       .locator(['[data-test="search-submit"]', 'button:has-text("Search")', 'button[type="submit"]'].join(', '))
       .first();
 
-    // Sort
+
     this.sortSelect = page
       .locator(['[data-test="sort"]', 'select[name="sort"]', 'select:has(option)'].join(', '))
       .first();
 
-    // Price range (site often uses slider; inputs are best-effort fallbacks)
     this.priceMinInput = page
       .locator(['[data-test="price-min"]', 'input[name="min_price"]', 'input[aria-label*="Min" i]', 'input[placeholder*="Min" i]'].join(', '))
       .first();
@@ -105,7 +90,6 @@ export class ProductsPage {
       .locator(['[data-test="apply-filters"]', 'button:has-text("Apply")', 'button:has-text("Filter")'].join(', '))
       .first();
 
-    // Product details "Add to cart"
     this.addToCartBtn = page
       .locator(['[data-test="add-to-cart"]', 'button:has-text("Add to cart")', 'button:has-text("Add to Cart")', 'button.btn:has-text("Add")'].join(', '))
       .first();
@@ -115,12 +99,11 @@ export class ProductsPage {
     'button:has-text("Add to cart")',
     'button:has-text("Add to Cart")',
     'button.btn:has-text("Add")',
-    'button#btn-add-to-cart' // ✅ إضافة آمنة
+    'button#btn-add-to-cart'
   ].join(', '))
   .first();
 
 
-    // No-results / empty state
     this.noResultsText = page.getByText(/no products|no results|nothing found/i);
     this.emptyState = page.locator(['[data-test="no-results"]', '[data-test="empty-state"]', '.empty-state', '.alert:has-text("No")'].join(', '));
   }
@@ -146,9 +129,7 @@ export class ProductsPage {
       .toBeVisible({ timeout: timeoutMs });
   }
 
-  // ----------------------------
-  // Navigation
-  // ----------------------------
+  
   async gotoProducts(): Promise<void> {
     await this.gotoRelative('/#/');
     await this.assertProductsOrEmpty(60_000);
@@ -159,9 +140,6 @@ export class ProductsPage {
     await this.assertProductsOrEmpty(60_000);
   }
 
-  // ----------------------------
-  // Search / Sort
-  // ----------------------------
   async search(text: string): Promise<void> {
     await this.gotoProducts();
     await expect(this.searchInput, 'Search input not found').toBeVisible({ timeout: 30_000 });
@@ -190,9 +168,6 @@ export class ProductsPage {
     await this.assertProductsOrEmpty(60_000);
   }
 
-  // ----------------------------
-  // ✅ Brand filtering (fixed)
-  // ----------------------------
   async filterByBrand(brandName: string): Promise<void> {
     await this.gotoProducts();
     await expect(this.brandFieldset, 'Brand filters section not found (By brand)').toBeVisible({ timeout: 30_000 });
@@ -239,9 +214,7 @@ export class ProductsPage {
     return chosen;
   }
 
-  // ----------------------------
-  // Price Range (best-effort)
-  // ----------------------------
+
   async setPriceRange(min: string, max: string): Promise<void> {
     await this.gotoProducts();
 
@@ -263,14 +236,11 @@ export class ProductsPage {
       return;
     }
 
-    // Slider-only fallback: just settle and assert
+
     await this.page.waitForTimeout(300);
     await this.assertProductsOrEmpty(60_000);
   }
 
-  // ----------------------------
-  // Helpers expected by your specs
-  // ----------------------------
   async expectNoResults(timeoutMs: number = 15_000): Promise<void> {
     const hasAnyProduct =
       (await this.productLinks.first().isVisible({ timeout: 2_000 }).catch(() => false)) ||
@@ -329,9 +299,7 @@ export class ProductsPage {
     expect(cleaned, 'Numbers are not sorted High->Low').toEqual(sorted);
   }
 
-  // ----------------------------
-  // Cart helpers expected by some specs
-  // ----------------------------
+
   async openProductByIndex(index: number): Promise<void> {
     await this.gotoProducts();
     const link = this.productLinks.nth(index);

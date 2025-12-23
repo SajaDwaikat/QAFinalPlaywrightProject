@@ -14,7 +14,6 @@ export class CartPage {
   constructor(page: Page) {
     this.page = page;
 
-    // Cart icon/link in header
     this.cartLink = page.locator(
       [
         'a[href="/cart"]',
@@ -29,7 +28,6 @@ export class CartPage {
       ].join(', ')
     ).first();
 
-    // Headings on cart page (Toolshop demo varies)
     this.cartTitle = page.locator(
       [
         'h1:has-text("Shopping cart")',
@@ -42,13 +40,11 @@ export class CartPage {
       ].join(', ')
     ).first();
 
-    // Rows/items (table or list)
     this.cartItemRows = page.locator(
   [
-    // ✅ Toolshop checkout: count ONLY product rows (rows that have the remove X button)
     'table tbody tr:has(a.btn.btn-danger)',
 
-    // fallbacks
+    
     '[data-test="cart-item"]',
     '[data-test="cart-item-row"]',
     '.cart-item',
@@ -56,7 +52,6 @@ export class CartPage {
     'app-cart-item',
   ].join(', ')
 );
-    // Cart badge quantity (red circle)
 this.cartBadgeQty = page.locator(
   [
     '[data-test="cart-quantity"]',
@@ -70,7 +65,6 @@ this.cartBadgeQty = page.locator(
 ).first();
 
 
-    // Empty state
    this.emptyCartText = page.locator(
   [
     '[data-test="cart-empty"]',
@@ -86,13 +80,10 @@ this.cartBadgeQty = page.locator(
 ).first();
 
 
-    // Remove buttons
     this.removeButtons = page.locator(
   [
-    // Toolshop checkout remove (anchor button)
     'a.btn.btn-danger',
 
-    // existing fallbacks
     '[data-test="remove"]',
     '[data-test="delete"]',
     'button:has-text("Remove")',
@@ -129,7 +120,6 @@ this.cartBadgeQty = page.locator(
   private async isCartUIVisible(): Promise<boolean> {
     const url = this.page.url();
 
-    // ✅ إذا وصلنا URL تبع cart/checkout اعتبريه نجاح (حتى لو العنوان تغيّر)
     if (url.includes('/cart') || url.includes('/checkout')) return true;
 
     const titleOk = await this.cartTitle.isVisible().catch(() => false);
@@ -149,17 +139,14 @@ this.cartBadgeQty = page.locator(
   async gotoCart(timeoutMs = 30_000): Promise<void> {
     await this.closeOverlaysIfAny();
 
-    // ✅ 1) الأفضل: دخول مباشر على /cart (أكثر استقرارًا من click)
     await this.page.goto('/cart', { waitUntil: 'domcontentloaded' }).catch(() => {});
     await this.page.waitForTimeout(300);
     if (await this.isCartUIVisible()) return;
 
-    // ✅ 2) fallback: بعض النسخ بتودّي على /checkout
     await this.page.goto('/checkout', { waitUntil: 'domcontentloaded' }).catch(() => {});
     await this.page.waitForTimeout(300);
     if (await this.isCartUIVisible()) return;
 
-    // ✅ 3) آخر حل: click على أيقونة الكارت
     if (await this.cartLink.isVisible().catch(() => false)) {
       await this.cartLink.click({ force: true }).catch(() => {});
       await this.page.waitForLoadState('domcontentloaded').catch(() => {});
@@ -168,7 +155,7 @@ this.cartBadgeQty = page.locator(
       return;
     }
 
-    // Hard fail
+    
     throw new Error(`Could not reach cart UI. Current URL: ${this.page.url()}`);
   }
 
@@ -179,10 +166,8 @@ this.cartBadgeQty = page.locator(
  async expectHasAnyItem(timeoutMs = 60_000): Promise<void> {
   await expect
     .poll(async () => {
-      // 1) if remove button exists => we definitely have an item
       const hasRemove = await this.removeButtons.first().isVisible().catch(() => false);
 
-      // 2) if cart badge number > 0
       let badgeNum = 0;
       try {
         const txt = (await this.cartBadgeQty.innerText().catch(() => ''))?.trim();
@@ -191,17 +176,15 @@ this.cartBadgeQty = page.locator(
         badgeNum = 0;
       }
 
-      // 3) fallback: any cart rows selector
       const rows = await this.getItemCount();
 
       return { hasRemove, badgeNum, rows, url: this.page.url() };
     }, { timeout: timeoutMs })
     .toMatchObject({
-      // نجاح إذا تحقق واحد من الثلاثة
-      // (ما بنقدر نحط OR داخل toMatchObject، فبنستخدم شرطنا تحت)
+     
     });
 
-  // الشرط الحقيقي (OR)
+
   await expect
     .poll(async () => {
       const hasRemove = await this.removeButtons.first().isVisible().catch(() => false);
@@ -238,7 +221,7 @@ this.cartBadgeQty = page.locator(
     const firstRow = this.cartItemRows.first();
  const removeInRow = firstRow.locator(
   [
-    'a.btn.btn-danger',          // ✅ this is the real remove on checkout
+    'a.btn.btn-danger',       
     '[data-test="remove"]',
     '[data-test="delete"]',
     'button:has-text("Remove")',
@@ -253,7 +236,7 @@ this.cartBadgeQty = page.locator(
       await this.removeButtons.first().click({ force: true });
     }
 
-    // confirm dialog (if exists)
+    
     const confirm = this.page.locator(
       ['button:has-text("Confirm")', 'button:has-text("Yes")', 'button:has-text("OK")'].join(', ')
     ).first();
